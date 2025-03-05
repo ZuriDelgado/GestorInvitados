@@ -6,7 +6,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Chip,
   Tooltip,
   Button,
   Input,
@@ -17,12 +16,12 @@ import {
   ModalFooter,
 } from "@heroui/react";
 
-
+// Definición de tipos
 type User = {
   id: number;
   nombre: string;
   telefono: string;
-  status: "active" | "paused";
+  cupos: number;
 };
 
 type Acompanante = {
@@ -35,16 +34,16 @@ type Column = {
   uid: keyof User | "actions" | "viewAcompanantes";
 };
 
-
+// Columnas de la tabla
 export const columns: Column[] = [
   { name: "INVITADOS", uid: "nombre" },
   { name: "TELEFONO", uid: "telefono" },
-  { name: "STATUS", uid: "status" },
+  { name: "EXTRAS", uid: "cupos" },
   { name: "ACOMPAÑANTES", uid: "viewAcompanantes" },
   { name: "ACCIONES", uid: "actions" },
 ];
 
-
+// Íconos (definidos como componentes de React)
 export const DeleteIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     aria-hidden="true"
@@ -132,18 +131,13 @@ export const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-
-const statusColorMap: { [key in User["status"]]: "success" | "warning" } = {
-  active: "success",
-  paused: "warning",
-};
-
-
+// Componente principal
 export default function TableAdmin() {
   const [users, setUsers] = useState<User[]>([]);
-  const [newUser, setNewUser] = useState<Omit<User, "id" | "status">>({
+  const [newUser, setNewUser] = useState<Omit<User, "id">>({
     nombre: "",
     telefono: "",
+    cupos: 0,
   });
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -151,7 +145,7 @@ export default function TableAdmin() {
   const [isAcompanantesModalOpen, setIsAcompanantesModalOpen] = useState(false);
   const [acompanantes, setAcompanantes] = useState<Acompanante[]>([]);
 
- 
+  // Obtener los invitados desde la API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -169,22 +163,24 @@ export default function TableAdmin() {
     fetchUsers();
   }, []);
 
- 
+  // Función para obtener los acompañantes de un invitado
   const fetchAcompanantes = async (invitadoId: number) => {
     try {
       const response = await fetch(`http://localhost:3001/invitados/${invitadoId}/acompanantes`);
       if (!response.ok) {
-        throw new Error("Error al obtener los acompañantes");
+        const errorData = await response.json();
+        throw new Error(errorData.mensaje || 'Ocurrió un error desconocido');
       }
       const data: Acompanante[] = await response.json();
       setAcompanantes(data);
       setIsAcompanantesModalOpen(true);
     } catch (error) {
+      alert(error)
       console.error("Error:", error);
     }
   };
 
-  
+  // Función para eliminar un invitado
   const handleDelete = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/invitados/${id}`, {
@@ -201,13 +197,13 @@ export default function TableAdmin() {
     }
   };
 
-  
+  // Función para abrir el modal de edición
   const handleEdit = (user: User) => {
     setEditingUser(user);
     setIsEditModalOpen(true);
   };
 
-  
+  // Función para guardar la edición
   const handleSaveEdit = async () => {
     if (editingUser) {
       try {
@@ -223,7 +219,7 @@ export default function TableAdmin() {
           throw new Error("Error al actualizar el invitado");
         }
 
-        setUsers(users.map((user) => 
+        setUsers(users.map((user) =>
           user.id === editingUser.id ? { ...editingUser } : user
         ));
         setIsEditModalOpen(false);
@@ -233,7 +229,7 @@ export default function TableAdmin() {
     }
   };
 
-
+  // Función para agregar un nuevo invitado
   const handleAddUser = async () => {
     try {
       const response = await fetch("http://localhost:3001/invitados", {
@@ -249,9 +245,9 @@ export default function TableAdmin() {
       }
 
       const data: User = await response.json();
-      setUsers([...users, { ...data, status: "active" }]);
+      setUsers([...users, data]);
       setIsAddModalOpen(false);
-      setNewUser({ nombre: "", telefono: "" });
+      setNewUser({ nombre: "", telefono: "", cupos: 0 });
     } catch (error) {
       console.error("Error:", error);
     }
@@ -259,17 +255,17 @@ export default function TableAdmin() {
 
   return (
     <div style={{ fontFamily: "Poppins, sans-serif" }}>
-   
+      {/* Botón para abrir el modal de agregar */}
       <div className="flex justify-end mt-8">
         <Button style={{ backgroundColor: "#33015f", color: "#ffffff" }} onClick={() => setIsAddModalOpen(true)}>
           Agregar Invitado
         </Button>
       </div>
 
-     
+      {/* Título de la tabla */}
       <h1 className="flex ml-6" style={{ color: "#33015f", fontSize: "25px" }}>Registro de Invitados</h1>
 
-      
+      {/* Tabla de invitados */}
       <Table aria-label="Example table with custom cells">
         <TableHeader columns={columns}>
           {(column) => (
@@ -283,11 +279,7 @@ export default function TableAdmin() {
             <TableRow key={item.id}>
               <TableCell>{item.nombre}</TableCell>
               <TableCell>{item.telefono}</TableCell>
-              <TableCell>
-                <Chip color={statusColorMap[item.status]} size="sm" variant="flat">
-                  {item.status}
-                </Chip>
-              </TableCell>
+              <TableCell>{item.cupos}</TableCell>
               <TableCell>
                 <Button
                   style={{ backgroundColor: "#fff", color: "#33015f", border: "1px solid #33015f" }}
@@ -315,7 +307,7 @@ export default function TableAdmin() {
         </TableBody>
       </Table>
 
-      
+      {/* Modal para agregar un nuevo invitado */}
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
         <ModalContent>
           <ModalHeader>Agregar Invitado</ModalHeader>
@@ -331,6 +323,17 @@ export default function TableAdmin() {
                 value={newUser.telefono}
                 onChange={(e) => setNewUser({ ...newUser, telefono: e.target.value })}
               />
+              <Input
+                placeholder="Cupos"
+                type="number"
+                value={newUser.cupos.toString()}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  if (!isNaN(value) && value >= 0) {
+                    setNewUser({ ...newUser, cupos: parseInt(e.target.value) });
+                  }
+                }}
+              />
             </div>
           </ModalBody>
           <ModalFooter>
@@ -344,7 +347,7 @@ export default function TableAdmin() {
         </ModalContent>
       </Modal>
 
-      
+      {/* Modal para editar un invitado */}
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <ModalContent>
           <ModalHeader>Editar Invitado</ModalHeader>
@@ -360,6 +363,12 @@ export default function TableAdmin() {
                 value={editingUser?.telefono || ""}
                 onChange={(e) => setEditingUser({ ...editingUser!, telefono: e.target.value })}
               />
+              <Input
+                placeholder="Cupos"
+                type="number"
+                value={editingUser?.cupos.toString() || ""}
+                onChange={(e) => setEditingUser({ ...editingUser!, cupos: Number(e.target.value) })}
+              />
             </div>
           </ModalBody>
           <ModalFooter>
@@ -373,7 +382,7 @@ export default function TableAdmin() {
         </ModalContent>
       </Modal>
 
-     
+      {/* Modal para ver los acompañantes */}
       <Modal isOpen={isAcompanantesModalOpen} onClose={() => setIsAcompanantesModalOpen(false)}>
         <ModalContent>
           <ModalHeader>Acompañantes</ModalHeader>

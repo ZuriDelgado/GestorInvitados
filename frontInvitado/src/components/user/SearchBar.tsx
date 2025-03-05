@@ -17,8 +17,10 @@ const SearchBar: React.FC = () => {
   const [modalTitle, setModalTitle] = useState<string>('');
   const [selectedInvitado, setSelectedInvitado] = useState<Invitado | null>(null);
   const [invitados, setInvitados] = useState<Invitado[]>([]);
+  const [filteredInvitados, setFilteredInvitados] = useState<Invitado[]>([]);
   const navigate = useNavigate();
 
+  // Obtener los invitados desde la API
   useEffect(() => {
     const fetchInvitados = async () => {
       try {
@@ -36,24 +38,48 @@ const SearchBar: React.FC = () => {
     fetchInvitados();
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Searching for:', searchTerm);
+  // Filtrar invitados en tiempo real
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredInvitados([]); // Si no hay término de búsqueda, no mostrar resultados
+      return;
+    }
 
     if (searchTerm === "__@zapatoRojo2") {
       setIsAdminModalOpen(true);
+    } 
+
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const filtered = invitados.filter(
+      (invitado) =>
+        invitado.nombre.toLowerCase().includes(lowerCaseSearchTerm) || // Buscar por nombre
+        invitado.telefono.includes(searchTerm) // Buscar por teléfono
+    );
+    setFilteredInvitados(filtered);
+  }, [searchTerm, invitados]);
+
+  // Manejar la selección de un invitado
+ 
+  const handleSelectInvitado = (invitado: Invitado) => {
+    setModalTitle(`¿Eres ${invitado.nombre}?`);
+    setSelectedInvitado(invitado);
+    setIsModalOpen(true);
+    setSearchTerm(""); // Limpiar la búsqueda después de seleccionar
+    setFilteredInvitados([]); // Ocultar la lista de resultados
+  };
+
+
+  // Manejar la búsqueda manual (por si el usuario presiona Enter)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (filteredInvitados.length > 0) {
+      handleSelectInvitado(filteredInvitados[0]); // Seleccionar el primer resultado
     } else {
-      const invitadoEncontrado = invitados.find(inv => inv.nombre === searchTerm);
-      if (invitadoEncontrado) {
-        setModalTitle(`¿Eres ${invitadoEncontrado.nombre}?`);
-        setSelectedInvitado(invitadoEncontrado);
-        setIsModalOpen(true);
-      } else {
-        alert("Invitado no encontrado");
-      }
+      alert("Invitado no encontrado");
     }
   };
 
+  // Cerrar el modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setIsAdminModalOpen(false);
@@ -61,10 +87,11 @@ const SearchBar: React.FC = () => {
 
   return (
     <>
+      {/* <div className='SearchBar_Background'> */}
       <form onSubmit={handleSearch} className="search-bar">
         <input
           type="text"
-          placeholder="Ingresa tu nombre"
+          placeholder="Ingresa tu nombre o teléfono"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -72,8 +99,28 @@ const SearchBar: React.FC = () => {
         <button type="submit" className="search-button">
           Buscar
         </button>
+
       </form>
 
+      {/* Mostrar la lista de resultados */}
+      {filteredInvitados.length > 0 && (
+        <div className="search-results">
+          <div className='test'>
+            {filteredInvitados.map((invitado) => (
+              <div
+                key={invitado.id}
+                className="search-result-item"
+                onClick={() => handleSelectInvitado(invitado)}
+              >
+                <span>{invitado.nombre}</span>
+                <span>{invitado.telefono}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación */}
       <ReusableModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -85,7 +132,10 @@ const SearchBar: React.FC = () => {
           }
         }}
       />
+
+      {/* Modal de administrador */}
       <ModalAdmin isOpen={isAdminModalOpen} onClose={handleCloseModal} />
+      {/* </div> */}
     </>
   );
 };

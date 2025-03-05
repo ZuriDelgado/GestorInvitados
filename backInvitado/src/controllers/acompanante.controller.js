@@ -7,7 +7,7 @@ const traerAcompanante = async (req, res) => {
       const acompanantes = await Acompanante.findAll({ where: { invitadoId: id } });
 
       if (!acompanantes.length) {
-          return res.status(404).json({ mensaje: "No hay acompañantes para este invitado" });
+          return res.status(404).send({ mensaje: "No hay acompañantes para este invitado" });
       }
 
       res.json(acompanantes);

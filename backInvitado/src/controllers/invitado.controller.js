@@ -14,14 +14,14 @@ const traerInvitados = async (req, res) => {
   };
 
   const crearInvitado = async (req, res) => {
-    const { nombre, telefono } = req.body;
-    const nuevoInvitado = await Invitado.create({ nombre, telefono });
+    const { nombre, telefono, cupos } = req.body;
+    const nuevoInvitado = await Invitado.create({ nombre, telefono, cupos });
     res.status(201).json(nuevoInvitado);
   };
 
   const actualizarInvitado = async (req, res) => {
-    const { nombre, telefono } = req.body;
-    await Invitado.update({ nombre, telefono }, { where: { id: req.params.id } });
+    const { nombre, telefono, cupos } = req.body;
+    await Invitado.update({ nombre, telefono, cupos }, { where: { id: req.params.id } });
     res.json({ mensaje: 'invitado actualizado' });
   };
 

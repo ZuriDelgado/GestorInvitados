@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
 }
 .welcome{
@@ -27,7 +27,7 @@
     max-width: 1800px;
     margin: auto;
     padding: 20px;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -55,7 +55,10 @@
 }
 
 .search-bar-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     width: 100%;
     max-width: 800px;
-    margin: 0 auto;
+    /* background-color: red; */
 }

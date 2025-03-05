@@ -17,8 +17,9 @@ const Invitado = sequelize.define("Invitado",{
         allowNull: false,
         unique: true
     },
-    estado:{
-        type: DataTypes.BOOLEAN
+    cupos:{
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
     }
 });
 

@@ -8,6 +8,7 @@ interface InvitadoPrincipal {
   id: number;
   nombre: string;
   telefono: string;
+  cupos: number; // Asegúrate de que el campo cupos esté incluido
 }
 
 interface Acompanante {
@@ -22,7 +23,7 @@ const GuestDetails: React.FC = () => {
   const [companions, setCompanions] = useState<Acompanante[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  
+  // Obtener los acompañantes del invitado principal
   useEffect(() => {
     if (invitadoPrincipal) {
       const fetchAcompanantes = async () => {
@@ -42,28 +43,32 @@ const GuestDetails: React.FC = () => {
     }
   }, [invitadoPrincipal]);
 
-  
+  // Si no hay invitado principal, mostrar un mensaje de error
   if (!invitadoPrincipal) {
     return <div>No se encontró el invitado principal. Por favor, regresa e intenta nuevamente.</div>;
   }
 
+  // Agregar un nuevo acompañante
   const handleAddCompanion = () => {
-    if (companions.length < 3) {
+    if (companions.length < invitadoPrincipal.cupos) {
       setCompanions([...companions, { nombre: "" }]);
     }
   };
 
+  // Eliminar un acompañante
   const handleRemoveCompanion = (index: number) => {
     const updatedCompanions = companions.filter((_, i) => i !== index);
     setCompanions(updatedCompanions);
   };
 
+  // Editar el nombre de un acompañante
   const handleEditCompanion = (index: number, value: string) => {
     const updatedCompanions = [...companions];
     updatedCompanions[index].nombre = value;
     setCompanions(updatedCompanions);
   };
 
+  // Eliminar un acompañante de la base de datos
   const handleDeleteCompanion = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/invitados/acompanantes/${id}`, {
@@ -74,7 +79,7 @@ const GuestDetails: React.FC = () => {
         throw new Error("Error al eliminar el acompañante");
       }
 
-      
+      // Actualizar la lista de acompañantes
       const updatedCompanions = companions.filter(companion => companion.id !== id);
       setCompanions(updatedCompanions);
     } catch (error) {
@@ -82,6 +87,7 @@ const GuestDetails: React.FC = () => {
     }
   };
 
+  // Validar y abrir el modal de confirmación
   const handleNext = () => {
     const hasEmptyNames = companions.some(companion => companion.nombre.trim() === "");
 
@@ -95,11 +101,13 @@ const GuestDetails: React.FC = () => {
     }
   };
 
+  // Guardar los acompañantes en la base de datos
   const handleConfirm = async () => {
     if (invitadoPrincipal) {
       try {
         for (const companion of companions) {
           if (companion.id) {
+            // Actualizar un acompañante existente
             await fetch(`http://localhost:3001/invitados/acompanantes/${companion.id}`, {
               method: "PUT",
               headers: {
@@ -108,6 +116,7 @@ const GuestDetails: React.FC = () => {
               body: JSON.stringify({ nombre: companion.nombre }),
             });
           } else {
+            // Crear un nuevo acompañante
             await fetch(`http://localhost:3001/invitados/${invitadoPrincipal.id}/acompanantes`, {
               method: "POST",
               headers: {
@@ -131,7 +140,7 @@ const GuestDetails: React.FC = () => {
         <div className="card">
           <h1 className="principalGuest">{invitadoPrincipal.nombre}</h1>
           <p className="subtitle">{invitadoPrincipal.telefono}</p>
-          <h2 className="max-companions">Acompañantes máximos: 3</h2>
+          <h2 className="max-companions">Acompañantes máximos: {invitadoPrincipal.cupos}</h2>
 
           <div className="companions-list">
             {companions.map((companion, index) => (
@@ -148,7 +157,7 @@ const GuestDetails: React.FC = () => {
                 </button>
               </div>
             ))}
-            {companions.length < 3 && (
+            {companions.length < invitadoPrincipal.cupos && (
               <button onClick={handleAddCompanion} className="add-btn">
                 <FaUserPlus />
               </button>
@@ -168,9 +177,9 @@ const GuestDetails: React.FC = () => {
           onRemove={(index) => {
             const companion = companions[index];
             if (companion.id) {
-              handleDeleteCompanion(companion.id); 
+              handleDeleteCompanion(companion.id); // Eliminar de la base de datos
             }
-            handleRemoveCompanion(index); 
+            handleRemoveCompanion(index); // Eliminar de la lista
           }}
           onAdd={handleAddCompanion}
           onConfirm={handleConfirm}
