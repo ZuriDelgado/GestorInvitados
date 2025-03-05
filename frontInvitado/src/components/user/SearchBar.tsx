@@ -38,10 +38,10 @@ const SearchBar: React.FC = () => {
     fetchInvitados();
   }, []);
 
-  // Filtrar invitados en tiempo real
+  
   useEffect(() => {
     if (searchTerm.trim() === "") {
-      setFilteredInvitados([]); // Si no hay término de búsqueda, no mostrar resultados
+      setFilteredInvitados([]); 
       return;
     }
 
@@ -52,34 +52,33 @@ const SearchBar: React.FC = () => {
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
     const filtered = invitados.filter(
       (invitado) =>
-        invitado.nombre.toLowerCase().includes(lowerCaseSearchTerm) || // Buscar por nombre
-        invitado.telefono.includes(searchTerm) // Buscar por teléfono
+        invitado.nombre.toLowerCase().includes(lowerCaseSearchTerm) ||
+        invitado.telefono.includes(searchTerm) 
     );
     setFilteredInvitados(filtered);
   }, [searchTerm, invitados]);
 
-  // Manejar la selección de un invitado
+  
  
   const handleSelectInvitado = (invitado: Invitado) => {
     setModalTitle(`¿Eres ${invitado.nombre}?`);
     setSelectedInvitado(invitado);
     setIsModalOpen(true);
-    setSearchTerm(""); // Limpiar la búsqueda después de seleccionar
-    setFilteredInvitados([]); // Ocultar la lista de resultados
+    setSearchTerm(""); 
+    setFilteredInvitados([]);
   };
 
 
-  // Manejar la búsqueda manual (por si el usuario presiona Enter)
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (filteredInvitados.length > 0) {
-      handleSelectInvitado(filteredInvitados[0]); // Seleccionar el primer resultado
+      handleSelectInvitado(filteredInvitados[0]);
     } else {
       alert("Invitado no encontrado");
     }
   };
 
-  // Cerrar el modal
+  
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setIsAdminModalOpen(false);
@@ -87,7 +86,6 @@ const SearchBar: React.FC = () => {
 
   return (
     <>
-      {/* <div className='SearchBar_Background'> */}
       <form onSubmit={handleSearch} className="search-bar">
         <input
           type="text"
@@ -102,7 +100,6 @@ const SearchBar: React.FC = () => {
 
       </form>
 
-      {/* Mostrar la lista de resultados */}
       {filteredInvitados.length > 0 && (
         <div className="search-results">
           <div className='test'>
@@ -120,7 +117,6 @@ const SearchBar: React.FC = () => {
         </div>
       )}
 
-      {/* Modal de confirmación */}
       <ReusableModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -133,9 +129,9 @@ const SearchBar: React.FC = () => {
         }}
       />
 
-      {/* Modal de administrador */}
+     
       <ModalAdmin isOpen={isAdminModalOpen} onClose={handleCloseModal} />
-      {/* </div> */}
+ 
     </>
   );
 };
