@@ -22,7 +22,7 @@ const GuestDetails: React.FC = () => {
   const [companions, setCompanions] = useState<Acompanante[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Obtener los acompañantes del invitado principal
+  
   useEffect(() => {
     if (invitadoPrincipal) {
       const fetchAcompanantes = async () => {
@@ -42,7 +42,7 @@ const GuestDetails: React.FC = () => {
     }
   }, [invitadoPrincipal]);
 
-  // Si no hay invitadoPrincipal, mostrar un mensaje de error
+  
   if (!invitadoPrincipal) {
     return <div>No se encontró el invitado principal. Por favor, regresa e intenta nuevamente.</div>;
   }
@@ -74,7 +74,7 @@ const GuestDetails: React.FC = () => {
         throw new Error("Error al eliminar el acompañante");
       }
 
-      // Actualizar la lista de acompañantes después de eliminar
+      
       const updatedCompanions = companions.filter(companion => companion.id !== id);
       setCompanions(updatedCompanions);
     } catch (error) {
@@ -168,9 +168,9 @@ const GuestDetails: React.FC = () => {
           onRemove={(index) => {
             const companion = companions[index];
             if (companion.id) {
-              handleDeleteCompanion(companion.id); // Eliminar de la base de datos
+              handleDeleteCompanion(companion.id); 
             }
-            handleRemoveCompanion(index); // Eliminar de la lista local
+            handleRemoveCompanion(index); 
           }}
           onAdd={handleAddCompanion}
           onConfirm={handleConfirm}

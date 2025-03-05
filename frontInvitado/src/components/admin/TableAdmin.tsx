@@ -17,7 +17,7 @@ import {
   ModalFooter,
 } from "@heroui/react";
 
-// Definición de tipos
+
 type User = {
   id: number;
   nombre: string;
@@ -35,7 +35,7 @@ type Column = {
   uid: keyof User | "actions" | "viewAcompanantes";
 };
 
-// Columnas de la tabla
+
 export const columns: Column[] = [
   { name: "INVITADOS", uid: "nombre" },
   { name: "TELEFONO", uid: "telefono" },
@@ -44,7 +44,7 @@ export const columns: Column[] = [
   { name: "ACCIONES", uid: "actions" },
 ];
 
-// Íconos (definidos como componentes de React)
+
 export const DeleteIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     aria-hidden="true"
@@ -132,13 +132,13 @@ export const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// Mapa de colores para los estados
+
 const statusColorMap: { [key in User["status"]]: "success" | "warning" } = {
   active: "success",
   paused: "warning",
 };
 
-// Componente principal
+
 export default function TableAdmin() {
   const [users, setUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState<Omit<User, "id" | "status">>({
@@ -151,7 +151,7 @@ export default function TableAdmin() {
   const [isAcompanantesModalOpen, setIsAcompanantesModalOpen] = useState(false);
   const [acompanantes, setAcompanantes] = useState<Acompanante[]>([]);
 
-  // Obtener los invitados desde la API
+ 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -169,7 +169,7 @@ export default function TableAdmin() {
     fetchUsers();
   }, []);
 
-  // Función para obtener los acompañantes de un invitado
+ 
   const fetchAcompanantes = async (invitadoId: number) => {
     try {
       const response = await fetch(`http://localhost:3001/invitados/${invitadoId}/acompanantes`);
@@ -184,7 +184,7 @@ export default function TableAdmin() {
     }
   };
 
-  // Función para eliminar un invitado
+  
   const handleDelete = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/invitados/${id}`, {
@@ -201,13 +201,13 @@ export default function TableAdmin() {
     }
   };
 
-  // Función para abrir el modal de edición
+  
   const handleEdit = (user: User) => {
     setEditingUser(user);
     setIsEditModalOpen(true);
   };
 
-  // Función para guardar la edición
+  
   const handleSaveEdit = async () => {
     if (editingUser) {
       try {
@@ -233,7 +233,7 @@ export default function TableAdmin() {
     }
   };
 
-  // Función para agregar un nuevo invitado
+
   const handleAddUser = async () => {
     try {
       const response = await fetch("http://localhost:3001/invitados", {
@@ -259,17 +259,17 @@ export default function TableAdmin() {
 
   return (
     <div style={{ fontFamily: "Poppins, sans-serif" }}>
-      {/* Botón para abrir el modal de agregar */}
+   
       <div className="flex justify-end mt-8">
         <Button style={{ backgroundColor: "#33015f", color: "#ffffff" }} onClick={() => setIsAddModalOpen(true)}>
           Agregar Invitado
         </Button>
       </div>
 
-      {/* Título de la tabla */}
+     
       <h1 className="flex ml-6" style={{ color: "#33015f", fontSize: "25px" }}>Registro de Invitados</h1>
 
-      {/* Tabla de invitados */}
+      
       <Table aria-label="Example table with custom cells">
         <TableHeader columns={columns}>
           {(column) => (
@@ -315,7 +315,7 @@ export default function TableAdmin() {
         </TableBody>
       </Table>
 
-      {/* Modal para agregar un nuevo invitado */}
+      
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
         <ModalContent>
           <ModalHeader>Agregar Invitado</ModalHeader>
@@ -344,7 +344,7 @@ export default function TableAdmin() {
         </ModalContent>
       </Modal>
 
-      {/* Modal para editar un invitado */}
+      
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <ModalContent>
           <ModalHeader>Editar Invitado</ModalHeader>
@@ -373,7 +373,7 @@ export default function TableAdmin() {
         </ModalContent>
       </Modal>
 
-      {/* Modal para ver los acompañantes */}
+     
       <Modal isOpen={isAcompanantesModalOpen} onClose={() => setIsAcompanantesModalOpen(false)}>
         <ModalContent>
           <ModalHeader>Acompañantes</ModalHeader>

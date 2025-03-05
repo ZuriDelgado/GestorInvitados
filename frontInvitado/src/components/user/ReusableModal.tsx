@@ -26,7 +26,7 @@ const ReusableModal: React.FC<ReusableModalProps> = ({ isOpen, onClose, title, s
 
   const handleSubmitPhone = () => {
     if (selectedInvitado && phoneNumber === selectedInvitado.telefono) {
-      onConfirm(); // Llamar a onConfirm para redirigir
+      onConfirm(); 
     } else {
       alert("Número de teléfono incorrecto");
     }
