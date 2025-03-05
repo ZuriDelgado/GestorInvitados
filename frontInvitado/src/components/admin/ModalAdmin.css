@@ -1,0 +1,19 @@
+.password-input-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  .password-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: #33015F 2px solid;
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    font-size: 1rem;
+    color: #33015F;
+    outline: none;
+  }
+  
+  .password-input:focus {
+    border-color: #33015F;
+  }
+  
